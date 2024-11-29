@@ -200,6 +200,6 @@ public class UTestDataUtil {
 
     @Test
     public void testToTempTempFile() {
-        Assert.assertEquals("footemptempfile.txt", DataUtil.toTempTempFile("foo.txt"));
+        Assert.assertTrue(DataUtil.toTempTempFile("foo.txt").matches("foo\\..*\\.temptempfile\\.txt"));
     }
 }

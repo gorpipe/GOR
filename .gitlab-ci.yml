@@ -16,8 +16,8 @@ variables:
   SECURITY_SCAN: "false"
   SKIP_ECR: 'yes' # Skip the push to ECR step
   # Vars needed for the Genuity Auto-CI
-  #RELEASABLE_BRANCH: 584-oci-cloud-gor-driver
-  RELEASABLE_BRANCH: master        # Optional (master is the default).  If this matches the current branch, the built image will be releasable with a semver tag.
+  RELEASABLE_BRANCH: 586-file-corruption-when-multiple-workers-running-same-query
+  #RELEASABLE_BRANCH: master        # Optional (master is the default).  If this matches the current branch, the built image will be releasable with a semver tag.
 
 
 .publish-snapshot-version-from-commit:

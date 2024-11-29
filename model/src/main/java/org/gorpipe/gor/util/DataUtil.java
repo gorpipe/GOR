@@ -1,7 +1,10 @@
 package org.gorpipe.gor.util;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.gorpipe.exceptions.GorDataException;
 import org.gorpipe.gor.driver.meta.DataType;
+
+import java.nio.file.Files;
 
 public class DataUtil {
 
@@ -125,7 +128,7 @@ public class DataUtil {
         var type = DataType.fromFileName(file);
 
         if (type != null) {
-            return file.replace(type.suffix, TEMPTEMPFILE + type.suffix);
+            return file.replace(type.suffix,  "." + RandomStringUtils.random(8, true, true) + "." + TEMPTEMPFILE + type.suffix);
         }
 
         throw new GorDataException(String.format("Data type does not exist for file: %s", file));
