@@ -22,12 +22,15 @@
 
 package gorsat.gorsatGorIterator
 
+import org.apache.commons.collections.IteratorUtils
+
 import java.nio.file.Files
 import java.util.stream.Collectors
 import org.gorpipe.gor.model.{DriverBackedFileReader, FileReader}
 import org.gorpipe.gor.session.GorSession
 import org.gorpipe.model.gor.iterators.LineIterator
 
+import scala.collection.mutable.ListBuffer
 import scala.jdk.CollectionConverters.IterableHasAsScala
 
 object MapAndListUtilities {
@@ -167,10 +170,9 @@ object MapAndListUtilities {
         iterator.close()
         theMap
       case None =>
+        val multiMap = new java.util.HashMap[String, ListBuffer[String]]()
         try {
-          val multiMap = new java.util.HashMap[String, Array[String]]()
-          val mmu: MemoryMonitorUtil =  new MemoryMonitorUtil(MemoryMonitorUtil.basicOutOfMemoryHandler)
-
+          val mmu: MemoryMonitorUtil = new MemoryMonitorUtil(MemoryMonitorUtil.basicOutOfMemoryHandler)
           while (iterator.hasNext) {
             val x = iterator.nextLine
             val cols = x.split("\t", -1)
@@ -178,15 +180,20 @@ object MapAndListUtilities {
             if (cols.length >= ic + ocl) {
               val (a, b) = (cols.slice(0, ic).mkString("\t"), oc.tail.map(c => cols(c)).foldLeft(cols(oc.head))(_ + "\t" + _))
               val cisa = if (caseInsensitive) a.toUpperCase else a
-              if(multiMap.containsKey(cisa)) {
-                multiMap.put(cisa, (Array(b) ++ multiMap.get(cisa)).reverse)
+              if (multiMap.containsKey(cisa)) {
+                multiMap.put(cisa, multiMap.get(cisa) += b)
               } else {
-                multiMap.put(cisa, Array(b))
+                val buffer = ListBuffer(b)
+                multiMap.put(cisa, buffer)
               }
             }
           }
-          syncAddMultiHashMap(extFilename, multiMap, session)
-          multiMap
+          val multiOutputMap = new java.util.HashMap[String, Array[String]]()
+          multiMap.forEach((k, v) => {
+            multiOutputMap.put(k, v.toArray)
+          })
+          syncAddMultiHashMap(extFilename, multiOutputMap, session)
+          multiOutputMap
         } finally {
           iterator.close()
         }
