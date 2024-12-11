@@ -74,10 +74,10 @@ class AbortingInputStream extends InputStream {
             if (missingBytes < SKIP_BYTES_THRESHOLD) {
                 // If we are close to the end, skip the rest (to avoid aborting)
                 long skipped = s3is.skip(missingBytes);
-                logger.warn("S3 stream, not all bytes read, skipping {} ({}) bytes out of {} bytes.", skipped, missingBytes, maxBytes);
+                logger.debug("S3 stream, not all bytes read, skipping {} ({}) bytes out of {} bytes.", skipped, missingBytes, maxBytes);
                 s3is.close();
             } else {
-                logger.warn("S3 stream, not all bytes read, aborting S3 input stream. {} bytes not read, of {} bytes.", missingBytes, maxBytes);
+                logger.debug("S3 stream, not all bytes read, aborting S3 input stream. {} bytes not read, of {} bytes.", missingBytes, maxBytes);
                 s3is.abort();
             }
         } else {
