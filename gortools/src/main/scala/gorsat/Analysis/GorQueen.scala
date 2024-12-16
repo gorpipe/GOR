@@ -174,7 +174,7 @@ object GorQueen {
 */
         val GTS1length = bui.outputBucketID.length
         val outputSize2 = bui.outputBucketID2.length
-        val IDX1 = new Array[Int](outputSize2)
+        val IDX1 = new Array[Int](GTS1length)
         val GTS2 = new Array[Char](outputSize2)
         var IDX1size : Int = 0
 
