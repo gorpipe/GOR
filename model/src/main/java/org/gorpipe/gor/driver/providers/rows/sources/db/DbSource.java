@@ -155,7 +155,7 @@ public class DbSource extends RowIteratorSource {
                 timestamp = dbsource.queryDefaultTableChange(tableName);
             }
         }
-        return new SourceMetadata(this, sourceReference.getUrl(), timestamp, null, false);
+        return new SourceMetadata(this, sourceReference.getUrl(), timestamp, null);
     }
 
     @Override

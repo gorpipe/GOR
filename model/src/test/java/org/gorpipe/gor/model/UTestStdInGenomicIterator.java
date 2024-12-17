@@ -143,7 +143,7 @@ public class UTestStdInGenomicIterator {
     private GenomicIterator getIterator(String contents) throws IOException {
         System.setIn(new ByteArrayInputStream(contents.getBytes()));
 
-        GenomicIterator iterator = SourceRef.STANDARD_IN.iterate(new DefaultChromoLookup(), null,
+        GenomicIterator iterator = SourceRef.STANDARD_IN.iterate(new DefaultChromoLookup(),
                 new CLISessionFactory(new PipeOptions(), null).create());
         return iterator;
     }

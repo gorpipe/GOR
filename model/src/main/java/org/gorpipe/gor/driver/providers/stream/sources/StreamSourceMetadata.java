@@ -36,14 +36,14 @@ public class StreamSourceMetadata extends SourceMetadata {
     private final Long length;
 
     public StreamSourceMetadata(StreamSource source, String canonicalName, Long lastModified, Long linkLastModified,
-                                Long length, String uniqueId, boolean isSubset) {
-        super(source, canonicalName, lastModified, linkLastModified, uniqueId, isSubset);
+                                Long length, String uniqueId) {
+        super(source, canonicalName, lastModified, linkLastModified, uniqueId);
         this.length = length;
     }
 
     public StreamSourceMetadata(StreamSource source, String canonicalName, Long lastModified,
-                                Long length, String uniqueId, boolean isSubset) {
-        super(source, canonicalName, lastModified, uniqueId, isSubset);
+                                Long length, String uniqueId) {
+        super(source, canonicalName, lastModified, uniqueId);
         this.length = length;
     }
 

@@ -85,10 +85,10 @@ public class GoogleCloudStorageBlobSource implements StreamSource {
      * @param bucket Google Cloud Storage bucket name
      * @param key    Object key (path)
      */
-    public GoogleCloudStorageBlobSource(String bucket, String key, String subset) {
+    public GoogleCloudStorageBlobSource(String bucket, String key) {
         this.bucket = bucket;
         this.key = key;
-        this.sourceReference = new SourceReferenceBuilder(GoogleCloudStorageBlobHelper.makeUrl(bucket, key)).chrSubset(subset).build();
+        this.sourceReference = new SourceReferenceBuilder(GoogleCloudStorageBlobHelper.makeUrl(bucket, key)).build();
         init();
     }
 
@@ -154,7 +154,7 @@ public class GoogleCloudStorageBlobSource implements StreamSource {
     public StreamSourceMetadata getSourceMetadata() {
         long length = cb.getSize();
         long lastModified = cb.getCreateTimeOffsetDateTime().toInstant().toEpochMilli();
-        return new StreamSourceMetadata(this, getName(), lastModified, length, cb.getEtag(), false);
+        return new StreamSourceMetadata(this, getName(), lastModified, length, cb.getEtag());
     }
 
     @Override

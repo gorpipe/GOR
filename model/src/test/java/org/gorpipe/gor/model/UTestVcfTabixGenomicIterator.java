@@ -53,10 +53,10 @@ public class UTestVcfTabixGenomicIterator {
         tabixIndexPath = Paths.get(ipath);
         cl = new DefaultChromoLookup();
         String path = DataUtil.toFile( "../tests/data/external/samtools/testTabixIndex", DataType.VCFGZ);
-        fs = new FileSource(path, null);
+        fs = new FileSource(path);
         ti = IndexFactory.createTabixIndex(new File(path), new VCFCodec(), null);
         ti.write(tabixIndexPath);
-        fi = new FileSource(ipath, null);
+        fi = new FileSource(ipath);
     }
 
     @Test

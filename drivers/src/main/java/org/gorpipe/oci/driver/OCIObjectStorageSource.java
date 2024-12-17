@@ -175,8 +175,7 @@ public class OCIObjectStorageSource implements StreamSource {
                     getName(),
                     getResponse.getLastModified().toInstant().toEpochMilli(),
                     getResponse.getContentLength(),
-                    null,
-                    false);
+                    null);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new GorSystemException(e);

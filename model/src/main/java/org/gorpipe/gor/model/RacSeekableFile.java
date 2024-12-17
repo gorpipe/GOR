@@ -51,7 +51,7 @@ public class RacSeekableFile extends StreamSourceSeekableFile {
      * @param fileName The file object of the random access file
      */
     public RacSeekableFile(RandomAccessFile raf, String fileName) {
-        super(new FileSource(fileName, null));
+        super(new FileSource(fileName));
         this.raf = raf;
         if (doTrace) {
             traceException = new RuntimeException();

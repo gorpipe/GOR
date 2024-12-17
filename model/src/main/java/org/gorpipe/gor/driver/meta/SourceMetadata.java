@@ -41,7 +41,6 @@ public class SourceMetadata {
     private final Long lastModified;
     private final Long linkLastModified;
     private final String uniqueId;
-    private final boolean isSubset;
     private final DataSource source;
 
     /**
@@ -49,9 +48,8 @@ public class SourceMetadata {
      * @param lastModified  Last modified - see getLastModified()
      * @param linkLastModified  Link Last modified
      * @param uniqueId      See uniqueId. If this is null, it will be generated from canonicalName and lastModified
-     * @param isSubset      true if this source only has access to a subset of the original source, else false.
      */
-    public SourceMetadata(DataSource source, String canonicalName, Long lastModified, Long linkLastModified, String uniqueId, boolean isSubset) {
+    public SourceMetadata(DataSource source, String canonicalName, Long lastModified, Long linkLastModified, String uniqueId) {
         this.source = source;
         this.canonicalName = canonicalName;
         this.lastModified = lastModified;
@@ -61,17 +59,15 @@ public class SourceMetadata {
         } else {
             this.uniqueId = uniqueId;
         }
-        this.isSubset = isSubset;
     }
 
     /**
      * @param canonicalName Canonical name of this source
      * @param lastModified  Last modified - see getLastModified()
      * @param uniqueId      See uniqueId. If this is null, it will be generated from canonicalName and lastModified
-     * @param isSubset      true if this source only has access to a subset of the original source, else false.
      */
-    public SourceMetadata(DataSource source, String canonicalName, Long lastModified, String uniqueId, boolean isSubset) {
-        this(source, canonicalName, lastModified, lastModified, uniqueId, isSubset);
+    public SourceMetadata(DataSource source, String canonicalName, Long lastModified, String uniqueId) {
+        this(source, canonicalName, lastModified, lastModified, uniqueId);
     }
 
     /**
@@ -107,13 +103,6 @@ public class SourceMetadata {
      */
     public String getUniqueId() {
         return uniqueId;
-    }
-
-    /**
-     * Return whether or not this source only has access to a subset of the original source.
-     */
-    public boolean isSubset() {
-        return isSubset;
     }
 
     public DataSource getSource() {

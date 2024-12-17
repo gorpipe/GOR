@@ -161,7 +161,7 @@ public class S3Source implements StreamSource {
     private S3SourceMetadata createMetaData(String bucket, String key) {
         try {
             var objectMetaResponse = client.headObject(HeadObjectRequest.builder().bucket(bucket).key(key).build());
-            return new S3SourceMetadata(this, objectMetaResponse, sourceReference.getLinkLastModified(), sourceReference.getChrSubset());
+            return new S3SourceMetadata(this, objectMetaResponse, sourceReference.getLinkLastModified());
         } catch (SdkClientException e) {
             throw new GorResourceException("Failed to load metadata for " + bucket + "/" + key, getPath().toString(), e).retry();
         }

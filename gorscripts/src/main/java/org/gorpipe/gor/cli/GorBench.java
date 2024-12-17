@@ -108,7 +108,7 @@ public class GorBench {
                 long startTime = System.currentTimeMillis();
                 GenomicIterator iter = null;
                 try {
-                    iter = gorDriver.createIterator(new SourceReferenceBuilder(file).chrSubset(subset).build());
+                    iter = gorDriver.createIterator(new SourceReferenceBuilder(file).build());
                     if (seeks == 0) {
                         for (int j = 0; j < readBases - 1; j++) {
                             if (!iter.hasNext()) {
@@ -142,7 +142,7 @@ public class GorBench {
                             }
                             if (newSource) {
                                 iter.close();
-                                iter = gorDriver.createIterator(new SourceReferenceBuilder(file).chrSubset(subset).build());
+                                iter = gorDriver.createIterator(new SourceReferenceBuilder(file).build());
                             }
                         }
                     }

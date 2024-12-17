@@ -26,13 +26,11 @@ import com.sun.istack.NotNull;
 import org.apache.commons.io.FileUtils;
 import org.gorpipe.exceptions.GorResourceException;
 import org.gorpipe.gor.driver.DataSource;
-import org.gorpipe.gor.driver.meta.DataType;
-import org.gorpipe.gor.driver.meta.SourceReference;
-import org.gorpipe.gor.driver.meta.SourceReferenceBuilder;
-import org.gorpipe.gor.driver.meta.SourceType;
+import org.gorpipe.gor.driver.meta.*;
 import org.gorpipe.gor.driver.providers.stream.sources.StreamSource;
 import org.gorpipe.gor.driver.providers.stream.sources.StreamSourceMetadata;
 import org.gorpipe.gor.table.util.PathUtils;
+import org.gorpipe.util.WrappingOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,9 +49,10 @@ public class FileSource implements StreamSource {
     private static final Logger log = LoggerFactory.getLogger(FileSource.class);
 
     private final SourceReference sourceReference;
-    private final Path file;
-    private final boolean isSubset;
+    private final Path filePath;
     private RandomAccessFile raf;
+    private final boolean useAtomicWrite = System.getProperty("gor.filereader.atomicwrite", "true").equalsIgnoreCase("true");;
+    private Path atomicTempFilePath;  // Set when we should write to a temp file.
 
     // For debugging purposes, set the system property 'gor.filereader.stacktrace' to true
     // to keep track of the call stack when the 'raf' is opened. The call stack is then
@@ -64,39 +63,38 @@ public class FileSource implements StreamSource {
     /**
      * Name of file.  This should be the full path to the file.
      */
-    public FileSource(String fileName, String subset) {
-        this(new SourceReferenceBuilder(fileName).chrSubset(subset).build());
+    public FileSource(String fileName) {
+        this(new SourceReferenceBuilder(fileName).build());
     }
 
     /**
      * Name of file.  This should be the full path to the file.
      */
     public FileSource(SourceReference sourceReference) {
-        this(sourceReference, false);
+        this.sourceReference = fixSourceReference(sourceReference);
+        this.filePath = getFullPath(this.sourceReference);
     }
 
-    /**
-     * Name of file.  This should be the full path to the file.
-     */
-    public FileSource(SourceReference sourceReference, boolean isSubset) {
+    private SourceReference fixSourceReference(SourceReference sourceReference) {
         String fileName = sourceReference.getUrl();
         fileName = PathUtils.fixFileSchema(fileName);
         if (!fileName.equals(sourceReference.getUrl())) {
             sourceReference = new SourceReference(fileName, sourceReference);
         }
+        return sourceReference;
+    }
 
+    private Path getFullPath(SourceReference sourceReference) {
+        String fileName = sourceReference.getUrl();
         if (sourceReference.getCommonRoot() != null && !Paths.get(fileName).isAbsolute()) {
             fileName = Paths.get(sourceReference.getCommonRoot(), fileName).toString();
         }
-
-        this.sourceReference = sourceReference;
-        this.file = Paths.get(fileName);
-        this.isSubset = isSubset;
+        return Paths.get(fileName);
     }
 
     @Override
     public InputStream open(long start)  {
-        ensureOpen();
+        ensureOpenForRead();
         try {
             raf.seek(start);
         } catch (IOException e) {
@@ -107,13 +105,13 @@ public class FileSource implements StreamSource {
 
     @Override
     public InputStream openClosable() {
-        ensureOpen();
+        ensureOpenForRead();
         return new FileSourceStream(true);
     }
 
     @Override
     public OutputStream getOutputStream(long start)  {
-        ensureOpenForWrite();
+        ensureOpenForWrite(start > 0);
         try {
             raf.seek(start);
         } catch (IOException e) {
@@ -122,30 +120,41 @@ public class FileSource implements StreamSource {
         return new FileSourceOutputStream();
     }
 
-    private void ensureOpen()  {
+    private void ensureOpenForRead()  {
         if (raf == null) {
             if (keepStackTraceForOpen) {
                 rafOpenedStackTrace = new Error();
             }
+
             try {
-                raf = new RandomAccessFile(file.toFile(), "r");
+                raf = new RandomAccessFile(filePath.toFile(), "r");
             } catch (FileNotFoundException e) {
                 throw new GorResourceException("Input source does not exist:" + getPath().toString(), getPath().toString(), e);
             }
         }
     }
 
-    private void ensureOpenForWrite()  {
+    private void ensureOpenForWrite(boolean hasSeek)  {
         if (raf == null) {
             if (keepStackTraceForOpen) {
                 rafOpenedStackTrace = new Error();
             }
             try {
-                raf = new RandomAccessFile(file.toFile(), "rw");
+                raf = new RandomAccessFile(findOutputFilePath(hasSeek).toFile(), "rw");
             } catch (FileNotFoundException e) {
                 throw new GorResourceException("Input source does not exist:" + getPath().toString(), getPath().toString(), e);
             }
         }
+    }
+
+    private Path findOutputFilePath(boolean hasSeek) {
+        // Only use temp files atomic write is on and we are not seeking in the file, i.e. not overwriting the whole file.
+        if (useAtomicWrite && !hasSeek) {
+            atomicTempFilePath = PathUtils.getTempFilePath(filePath);
+        } else {
+            atomicTempFilePath = null;
+        }
+        return atomicTempFilePath != null ? atomicTempFilePath : filePath;
     }
 
     @Override
@@ -160,25 +169,41 @@ public class FileSource implements StreamSource {
     
     @Override
     public String getFullPath() {
-        return file.toString();
+        return filePath.toString();
     }
 
     @Override
     public Path getPath() {
-        return file;
+        return filePath;
     }
 
     @Override
     public OutputStream getOutputStream(boolean append)  {
+        OutputStream os;
         try {
-            var parent = file.getParent();
+            var parent = filePath.getParent();
             if (parent != null && !Files.exists(parent)) {
                 Files.createDirectories(parent);
             }
-            return append ? Files.newOutputStream(file, StandardOpenOption.APPEND, StandardOpenOption.CREATE) : Files.newOutputStream(file);
+
+            if (append) {
+                os = Files.newOutputStream(filePath, StandardOpenOption.APPEND, StandardOpenOption.CREATE);
+            } else {
+                os = Files.newOutputStream(findOutputFilePath(false), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+            }
         } catch (IOException e) {
             throw GorResourceException.fromIOException(e, getPath()).retry();
         }
+        return new WrappingOutputStream(os) {
+            @Override
+            public void close() throws IOException  {
+                try {
+                    super.close();
+                } finally {
+                    FileSource.this.close();
+                }
+            }
+        };
     }
 
     @Override
@@ -203,7 +228,7 @@ public class FileSource implements StreamSource {
 
     @Override
     public boolean exists() {
-        return Files.exists(file);
+        return Files.exists(filePath);
     }
 
     @Override
@@ -228,7 +253,7 @@ public class FileSource implements StreamSource {
     @Override
     public String createDirectory(FileAttribute<?>... attrs)  {
         try {
-            return Files.createDirectory(file, attrs).toString();
+            return Files.createDirectory(filePath, attrs).toString();
         } catch (IOException e) {
             throw GorResourceException.fromIOException(e, getPath()).retry();
         }
@@ -237,7 +262,7 @@ public class FileSource implements StreamSource {
     @Override
     public String createDirectories(FileAttribute<?>... attrs)  {
         try {
-            return Files.createDirectories(file, attrs).toString();
+            return Files.createDirectories(filePath, attrs).toString();
         } catch (IOException e) {
             throw GorResourceException.fromIOException(e, getPath()).retry();
         }
@@ -245,13 +270,13 @@ public class FileSource implements StreamSource {
 
     @Override
     public boolean isDirectory() {
-        return Files.isDirectory(file);
+        return Files.isDirectory(filePath);
     }
 
     @Override
     public void delete()  {
         try {
-            Files.deleteIfExists(file);
+            Files.deleteIfExists(filePath);
         } catch (IOException e) {
             throw GorResourceException.fromIOException(e, getPath()).retry();
         }
@@ -260,7 +285,7 @@ public class FileSource implements StreamSource {
     @Override
     public void deleteDirectory()  {
         try {
-            FileUtils.deleteDirectory(file.toFile());
+            FileUtils.deleteDirectory(filePath.toFile());
         } catch (IOException e) {
             throw GorResourceException.fromIOException(e, getPath()).retry();
         }
@@ -269,7 +294,7 @@ public class FileSource implements StreamSource {
     @Override
     public Stream<String> list()  {
         try {
-            return mapPathToRelative(Files.list(file));
+            return mapPathToRelative(Files.list(filePath));
         } catch (IOException e) {
             throw GorResourceException.fromIOException(e, getPath()).retry();
         }
@@ -278,7 +303,7 @@ public class FileSource implements StreamSource {
     @Override
     public Stream<String> walk()  {
         try {
-            return mapPathToRelative(Files.walk(file));
+            return mapPathToRelative(Files.walk(filePath));
         } catch (IOException e) {
             throw GorResourceException.fromIOException(e, getPath()).retry();
         }
@@ -298,15 +323,15 @@ public class FileSource implements StreamSource {
     @Override
     public StreamSourceMetadata getSourceMetadata()  {
         // TODO:  Why does FileSource behave differently than most other sources.  We should only af the exists case here.
-        var exists = Files.exists(file);
+        var exists = Files.exists(filePath);
         if (exists) {
             try {
-                return new StreamSourceMetadata(this, "file://" + file.toRealPath(), Files.getLastModifiedTime(file).toMillis(), Files.size(file), null, isSubset);
+                return new StreamSourceMetadata(this, "file://" + filePath.toRealPath(), Files.getLastModifiedTime(filePath).toMillis(), Files.size(filePath), null);
             } catch (IOException e) {
                 throw GorResourceException.fromIOException(e, getPath()).retry();
             }
         } else {
-            return new StreamSourceMetadata(this, "file://" + file.normalize().toAbsolutePath(), 0L, 0L, null, isSubset);
+            return new StreamSourceMetadata(this, "file://" + filePath.normalize().toAbsolutePath(), 0L, 0L, null);
         }
     }
 
@@ -326,12 +351,21 @@ public class FileSource implements StreamSource {
                 raf = null;
             }
         }
+
+        if (useAtomicWrite && atomicTempFilePath != null && !filePath.equals(atomicTempFilePath)) {
+            try {
+                Files.move(atomicTempFilePath, filePath, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+                atomicTempFilePath = null;
+            } catch (IOException e) {
+                throw GorResourceException.fromIOException(e, getPath()).retry();
+            }
+        }
     }
 
     @Override
     protected void finalize() {
         if (raf != null) {
-            String msg = "Datasource closed via finalize method: " + file.toAbsolutePath();
+            String msg = "Datasource closed via finalize method: " + filePath.toAbsolutePath();
             if (rafOpenedStackTrace != null) {
                 StringWriter sw = new StringWriter();
                 rafOpenedStackTrace.printStackTrace(new PrintWriter(sw));

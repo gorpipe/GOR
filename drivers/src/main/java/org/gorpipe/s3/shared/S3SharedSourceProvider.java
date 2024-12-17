@@ -211,7 +211,7 @@ public abstract class S3SharedSourceProvider extends S3SourceProvider {
         String fallbackUrl = getFallbackUrl(sourceReference.getUrl());
         if (fallbackUrl != null) {
             SourceReference updatedSourceReference = new SourceReference(fallbackUrl, sourceReference.securityContext, sourceReference.commonRoot,
-                    sourceReference.getLookup(), sourceReference.chrSubset, sourceReference.getLinkSubPath(),
+                    sourceReference.getLookup(), sourceReference.getLinkSubPath(),
                     sourceReference.isWriteSource());
             return updatedSourceReference;
         }

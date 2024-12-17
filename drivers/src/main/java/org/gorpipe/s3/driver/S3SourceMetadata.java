@@ -35,13 +35,13 @@ public class S3SourceMetadata extends StreamSourceMetadata {
 
     private final HeadObjectResponse omd;
 
-    public S3SourceMetadata(S3Source source, HeadObjectResponse md, Long linkLastModified, String subset) {
-        super(source, source.getName(), md.lastModified().toEpochMilli(), linkLastModified, md.contentLength(), null, false);
+    public S3SourceMetadata(S3Source source, HeadObjectResponse md, Long linkLastModified) {
+        super(source, source.getName(), md.lastModified().toEpochMilli(), linkLastModified, md.contentLength(), null);
         this.omd = md;
     }
 
-    public S3SourceMetadata(S3Source source, HeadObjectResponse md, String subset) {
-        super(source, source.getName(), md.lastModified().toEpochMilli(), md.contentLength(), null, false);
+    public S3SourceMetadata(S3Source source, HeadObjectResponse md) {
+        super(source, source.getName(), md.lastModified().toEpochMilli(), md.contentLength(), null);
         this.omd = md;
     }
 

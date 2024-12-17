@@ -48,7 +48,7 @@ public class UTestDbSource {
 
     @Test
     public void testNonExistingLinkFile() {
-        SourceReference sourceReference = new SourceReference("db://rda:rda.v_variant_annotation", null, "", null, null, null, false);
+        SourceReference sourceReference = new SourceReference("db://rda:rda.v_variant_annotation", null, "", null, null, false);
         try {
             GorDriverFactory.fromConfig().createIterator(sourceReference);
             Assert.fail();

@@ -61,7 +61,7 @@ public class MemSource extends RowIteratorSource {
 
     @Override
     public SourceMetadata getSourceMetadata() {
-        return new SourceMetadata(this, getName(), 0L, Util.md5(getName()), false);
+        return new SourceMetadata(this, getName(), 0L, Util.md5(getName()));
     }
 
     @Override

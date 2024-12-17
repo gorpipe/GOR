@@ -79,7 +79,7 @@ public class UTestCachedSourceWrapper extends UTestHttpSource {
 
     @Test
     public void testLocalSource() throws IOException {
-        FileSource fs = new FileSource(lines1000File.getCanonicalPath(), null);
+        FileSource fs = new FileSource(lines1000File.getCanonicalPath());
 
         CachedSourceWrapper source = new CachedSourceWrapper(fileCache, fs);
         Assert.assertFalse(new File(cachedFilePath(source)).exists());

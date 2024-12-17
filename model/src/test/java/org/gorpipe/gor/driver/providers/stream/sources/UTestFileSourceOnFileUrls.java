@@ -23,7 +23,7 @@ public class UTestFileSourceOnFileUrls extends CommonStreamTests {
 
     @Override
     protected StreamSource createSource(String name) {
-        return new FileSource(name, null);
+        return new FileSource(name);
     }
 
     @Override

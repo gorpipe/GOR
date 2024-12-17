@@ -61,7 +61,7 @@ public class ITestOCICommonFilesTests extends CommonFilesTests {
 
     @Override
     protected StreamSource createSource(String name) throws IOException {
-        var sr = new SourceReference(name, securityContext(), null, null, null, null, false);
+        var sr = new SourceReference(name, securityContext(), null, null, null, false);
         return provider.resolveDataSource(sr);
     }
 }

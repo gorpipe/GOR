@@ -22,6 +22,7 @@
 
 package org.gorpipe.gor.table.util;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.gorpipe.exceptions.GorSystemException;
 import org.gorpipe.gor.driver.DataSource;
 import org.gorpipe.gor.driver.GorDriverFactory;
@@ -323,6 +324,18 @@ public class PathUtils {
 
     public static String getCurrentAbsolutePath() {
         return Path.of("").toAbsolutePath().toString();
+    }
+
+    public static Path getTempFilePath(Path filePath) {
+        var baseName = filePath.getFileName().toString();
+        var dotIndex = baseName.indexOf('.');
+        var base = dotIndex > 0 ? baseName.substring(0, dotIndex) : baseName;
+        var ext = dotIndex > 0 ? baseName.substring(dotIndex) : "";
+
+        var tempFileName = filePath.getParent().resolve(base
+                + "-temp-" + RandomStringUtils.insecure().nextAlphanumeric(8) + ext);
+
+        return tempFileName;
     }
 
 }

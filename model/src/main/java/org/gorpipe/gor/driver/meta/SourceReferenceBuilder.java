@@ -32,7 +32,6 @@ public class SourceReferenceBuilder {
     private String securityContext;
     private String commonRoot;
     private ChromoLookup lookup;
-    private String chrSubset;
     private boolean writeSource = false;
     private boolean isFallBack = true;
 
@@ -46,13 +45,12 @@ public class SourceReferenceBuilder {
         this.securityContext = parentSourceReference.securityContext;
         this.commonRoot = parentSourceReference.commonRoot;
         this.lookup = parentSourceReference.lookup;
-        this.chrSubset = parentSourceReference.chrSubset;
         this.writeSource = parentSourceReference.writeSource;
         this.isFallBack = parentSourceReference.isFallback();
     }
 
     public SourceReference build() {
-        return new SourceReference(url, securityContext, commonRoot, lookup, chrSubset, null, writeSource, isFallBack);
+        return new SourceReference(url, securityContext, commonRoot, lookup, null, writeSource, isFallBack);
     }
 
     public SourceReferenceBuilder securityContext(String securityContext) {
@@ -72,11 +70,6 @@ public class SourceReferenceBuilder {
 
     public SourceReferenceBuilder writeSource(boolean writeSource) {
         this.writeSource = writeSource;
-        return this;
-    }
-
-    public SourceReferenceBuilder chrSubset(String chrSubset) {
-        this.chrSubset = chrSubset;
         return this;
     }
 

@@ -120,7 +120,7 @@ public class UTestGorpIterator {
 
     @Test
     public void test_stream() {
-        final GenomicIterator git = new GorpIterator(new FileSource(new SourceReference(gorpPath, null, tempDirPath, null, null, null, false))).filter(r -> r.isProgress);
+        final GenomicIterator git = new GorpIterator(new FileSource(new SourceReference(gorpPath, null, tempDirPath, null, null, false))).filter(r -> r.isProgress);
         for (String chr : chrs) {
             Assert.assertTrue(git.hasNext());
             Assert.assertTrue(git.next().toString().startsWith(chr));
@@ -130,7 +130,7 @@ public class UTestGorpIterator {
 
     @Test
     public void test_seek() {
-        final GenomicIterator git = new GorpIterator(new FileSource(new SourceReference(gorpPath, null, tempDirPath, null, null, null, false)));
+        final GenomicIterator git = new GorpIterator(new FileSource(new SourceReference(gorpPath, null, tempDirPath, null, null, false)));
         Assert.assertTrue(git.seek("chrM", 576));
         Assert.assertTrue(git.hasNext());
         Assert.assertEquals("chrM\t576\t647\tJ01415.2\t21", git.next().toString());
@@ -146,13 +146,13 @@ public class UTestGorpIterator {
 
     @Test
     public void test_seekBeyondEnd() {
-        final GenomicIterator git = new GorpIterator(new FileSource(new SourceReference(gorpPath, null, tempDirPath, null, null, null, false)));
+        final GenomicIterator git = new GorpIterator(new FileSource(new SourceReference(gorpPath, null, tempDirPath, null, null, false)));
         Assert.assertFalse(git.seek("chrZ", 0));
     }
 
     @Test
     public void test_seekBeyondEndAndThenAtBeginning() {
-        final GenomicIterator git = new GorpIterator(new FileSource(new SourceReference(gorpPath, null, tempDirPath, null, null, null, false)));
+        final GenomicIterator git = new GorpIterator(new FileSource(new SourceReference(gorpPath, null, tempDirPath, null, null, false)));
         Assert.assertFalse(git.seek("chrZ", 0));
         Assert.assertTrue(git.seek("chr1", 0));
         Assert.assertTrue(git.hasNext());
@@ -163,7 +163,7 @@ public class UTestGorpIterator {
 
     @Test
     public void test_filterProgressRows() {
-        final GenomicIterator git = new GorpIterator(new FileSource(new SourceReference(gorpPath, null, tempDirPath, null, null, null, false)))
+        final GenomicIterator git = new GorpIterator(new FileSource(new SourceReference(gorpPath, null, tempDirPath, null, null, false)))
                 .filter(r -> !r.isProgress);
         while (git.hasNext()) {
             Assert.assertFalse(git.next().isProgress);

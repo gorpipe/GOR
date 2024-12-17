@@ -462,7 +462,7 @@ public class GorOptions {
         GorSession.currentSession.set(session);
         GenomicIterator i;
         try {
-            i = ref.iterate(new DefaultChromoLookup(), chrname, session);
+            i = ref.iterate(new DefaultChromoLookup(), session);
         } catch (IOException e) {
             throw new GorResourceException("Couldn't open file", ref.getName(), e);
         }

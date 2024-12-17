@@ -47,7 +47,6 @@ public class SourceReference {
     public final boolean writeSource;
     @JsonIgnore
     ChromoLookup lookup;
-    public final String chrSubset;
     private final String linkSubPath;
     private boolean isCreatedFromLink = false;
     private Long linkLastModified = null;
@@ -61,7 +60,7 @@ public class SourceReference {
     // - should the context hash map be stored as a part of this class or should it enter the chain at some other point?
 
     public SourceReference(String url, String securityContext, String commonRoot, ChromoLookup lookup,
-                           String chrSubset, String linkSubPath, boolean writeSource, boolean isFallback) {
+                           String linkSubPath, boolean writeSource, boolean isFallback) {
         this.url = url;
         // Pick up default security context here - it's not propagated from GorOptions if this is a sub query.
         if (securityContext == null) {
@@ -71,22 +70,21 @@ public class SourceReference {
         }
         this.commonRoot = commonRoot;
         this.lookup = lookup != null ? lookup : new DefaultChromoLookup();
-        this.chrSubset = chrSubset;
         this.linkSubPath = linkSubPath;
         this.writeSource = writeSource;
         this.isFallback = isFallback;
     }
 
     public SourceReference(String url, String securityContext, String commonRoot, ChromoLookup lookup,
-                           String chrSubset, String linkSubPath, boolean writeSource) {
-        this(url, securityContext, commonRoot, lookup, chrSubset, linkSubPath, writeSource, true);
+                           String linkSubPath, boolean writeSource) {
+        this(url, securityContext, commonRoot, lookup, linkSubPath, writeSource, true);
     }
 
     /**
      * @param url url for the source.
      */
     public SourceReference(String url) {
-        this(url, null, null, null, null, null, false);
+        this(url, null, null, null, null, false);
     }
 
     /**
@@ -111,7 +109,7 @@ public class SourceReference {
      */
     public SourceReference(String url, SourceReference parentSourceReference, String linkSubPath, String securityContext) {
         this(url, securityContext, parentSourceReference.getCommonRoot(),
-                parentSourceReference.getLookup(), parentSourceReference.getChrSubset(), linkSubPath,
+                parentSourceReference.getLookup(), linkSubPath,
                 parentSourceReference.isWriteSource());
         if (this.parentSourceReference == null) {
             this.parentSourceReference = parentSourceReference;
@@ -120,8 +118,8 @@ public class SourceReference {
 
     @JsonCreator
     public SourceReference(@JsonProperty("url") String url, @JsonProperty("securityContext") String securityContext,
-                           @JsonProperty("commonRoot") String commonRoot, @JsonProperty("chrSubset") String chrSubset) {
-        this(url, securityContext, commonRoot, null, chrSubset, null, false);
+                           @JsonProperty("commonRoot") String commonRoot) {
+        this(url, securityContext, commonRoot, null, null, false);
     }
 
     public String getUrl() {
@@ -150,10 +148,6 @@ public class SourceReference {
 
     public void setLookup(ChromoLookup lookup) {
         this.lookup = lookup;
-    }
-
-    public String getChrSubset() {
-        return chrSubset;
     }
 
     public int[] getColumns() {
@@ -211,13 +205,12 @@ public class SourceReference {
         return Objects.equals(url, that.url)
                 && Objects.equals(securityContext, that.securityContext)
                 && Objects.equals(commonRoot, that.commonRoot)
-                && Objects.equals(lookup, that.lookup)
-                && Objects.equals(chrSubset, that.chrSubset);
+                && Objects.equals(lookup, that.lookup);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(url, securityContext, commonRoot, lookup, chrSubset);
+        return Objects.hash(url, securityContext, commonRoot, lookup);
     }
 
     @Override
@@ -227,7 +220,6 @@ public class SourceReference {
                 ", securityContext='" + securityContext + '\'' +
                 ", commonRoot='" + commonRoot + '\'' +
                 ", lookup=" + lookup +
-                ", chrSubset='" + chrSubset + '\'' +
                 '}';
     }
 
@@ -257,7 +249,6 @@ public class SourceReference {
         private String securityContext;
         private String commonRoot;
         private ChromoLookup lookup;
-        private String chrSubset;
         private int[] columns;
         private String linkSubPath;
 
@@ -271,12 +262,11 @@ public class SourceReference {
             this.securityContext = parentSourceReference.securityContext;
             this.commonRoot = parentSourceReference.commonRoot;
             this.lookup = parentSourceReference.lookup;
-            this.chrSubset = parentSourceReference.chrSubset;
             this.linkSubPath = parentSourceReference.linkSubPath;
         }
 
         public SourceReference build() {
-            return new SourceReference(url, securityContext, commonRoot, lookup, chrSubset, linkSubPath, false);
+            return new SourceReference(url, securityContext, commonRoot, lookup, linkSubPath, false);
         }
 
         public Builder securityContext(String securityContext) {
@@ -291,11 +281,6 @@ public class SourceReference {
 
         public Builder lookup(ChromoLookup lookup) {
             this.lookup = lookup;
-            return this;
-        }
-
-        public Builder chrSubset(String chrSubset) {
-            this.chrSubset = chrSubset;
             return this;
         }
     }

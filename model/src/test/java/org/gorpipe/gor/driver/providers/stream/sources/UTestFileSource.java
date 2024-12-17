@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -43,6 +44,25 @@ public class UTestFileSource extends CommonStreamTests {
         }
     }
 
+    @Test
+    public void testAtomicWrite() throws IOException {
+        File outfile = new File(workDir.getRoot(), "text.txt");
+        outfile.deleteOnExit();
+
+        try (StreamSource source = createSource(getDataName(outfile)); OutputStream os = source.getOutputStream()) {
+            os.write("Hello".getBytes());
+            os.flush();
+
+            Assert.assertFalse(Files.exists(Path.of(outfile.getPath())));
+            Assert.assertTrue(Files.list(Path.of(workDir.getRoot().getPath()))
+                    .anyMatch(p -> p.getFileName().toString().matches("text-temp-.*\\.txt")));
+
+            os.write(" World".getBytes());
+        }
+        Assert.assertTrue(Files.exists(Path.of(outfile.getPath())));
+        Assert.assertTrue(Files.list(Path.of(workDir.getRoot().getPath()))
+                .allMatch(p -> !p.getFileName().toString().matches("text-temp-.*\\.txt")));
+    }
 
     @Override
     protected String getDataName(File file) throws IOException {
@@ -51,7 +71,7 @@ public class UTestFileSource extends CommonStreamTests {
 
     @Override
     protected StreamSource createSource(String name) {
-        return new FileSource(name, null);
+        return new FileSource(name);
     }
 
     @Override

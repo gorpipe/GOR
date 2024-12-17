@@ -45,7 +45,7 @@ public class UTestFileCache {
         tmpdir.toFile().setReadOnly();
         FileCache cache = new FileCache(tmpdir.toString(), 100);
         String sourceName = dummyFile.getCanonicalPath();
-        FileSource source = new FileSource(sourceName, null);
+        FileSource source = new FileSource(sourceName);
         File stored = cache.store("ABCD", source);
         Assert.assertNull(stored);
     }
@@ -54,7 +54,7 @@ public class UTestFileCache {
     public void testStoreAndRetrieve() throws IOException {
         FileCache cache = new FileCache("/tmp/my_cache", 100);
         String sourceName = dummyFile.getCanonicalPath();
-        FileSource source = new FileSource(sourceName, null);
+        FileSource source = new FileSource(sourceName);
         File stored = cache.store("ABCD", source);
         Assert.assertTrue(stored.getPath().startsWith("/tmp/my_cache"));
 
@@ -74,11 +74,11 @@ public class UTestFileCache {
 
         // Fill cache, first two small files, then large.
         // Sweep should delete all
-        cache.store("1", new FileSource(dummyFile.getCanonicalPath(), null));
-        cache.store("2", new FileSource(dummyFile.getCanonicalPath(), null));
+        cache.store("1", new FileSource(dummyFile.getCanonicalPath()));
+        cache.store("2", new FileSource(dummyFile.getCanonicalPath()));
         Thread.sleep(1001);
 
-        cache.store("3", new FileSource(lines1000Path, null));
+        cache.store("3", new FileSource(lines1000Path));
         Assert.assertEquals(3, cache.getCachedFiles().length);
         cache.sweep();
 
@@ -87,11 +87,11 @@ public class UTestFileCache {
 
         // Reverse it - should only delete large file
         // Sweep should delete all
-        cache.store("3", new FileSource(lines1000Path, null));
+        cache.store("3", new FileSource(lines1000Path));
         Thread.sleep(1001);
 
-        cache.store("1", new FileSource(dummyFile.getCanonicalPath(), null));
-        cache.store("2", new FileSource(dummyFile.getCanonicalPath(), null));
+        cache.store("1", new FileSource(dummyFile.getCanonicalPath()));
+        cache.store("2", new FileSource(dummyFile.getCanonicalPath()));
         Assert.assertEquals(3, cache.getCachedFiles().length);
         cache.sweep();
 
@@ -106,10 +106,10 @@ public class UTestFileCache {
     @Test
     public void testStampUpdate() throws Exception {
         FileCache cache = new FileCache("/tmp/my_cache", 100);
-        File stored = cache.store("1", new FileSource(dummyFile.getCanonicalPath(), null));
+        File stored = cache.store("1", new FileSource(dummyFile.getCanonicalPath()));
         long stamp1 = stored.lastModified();
         Thread.sleep(1001);
-        File stored2 = cache.store("2", new FileSource(dummyFile.getCanonicalPath(), null));
+        File stored2 = cache.store("2", new FileSource(dummyFile.getCanonicalPath()));
         long stamp2 = stored2.lastModified();
 
         Assert.assertTrue(stamp2 > stamp1);

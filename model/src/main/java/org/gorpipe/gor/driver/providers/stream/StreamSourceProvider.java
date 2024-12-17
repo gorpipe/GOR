@@ -252,10 +252,6 @@ public abstract class StreamSourceProvider implements SourceProvider {
 
         } else {
             if (file.supportsIndex() && file.getIndexSource() == null) {
-                if (source.getSourceMetadata().isSubset()) {
-                    throw new UnsupportedOperationException("Cannot handle indexed file on top of subset source");
-                }
-
                 StreamSource idxSource = findIndexFileFromFileDriver(file, sourceRef);
 
                 if (idxSource != null) {

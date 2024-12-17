@@ -78,7 +78,7 @@ public class AzureBlobSource implements StreamSource {
         this.bucket = bucket;
         this.key = key;
         this.sourceReference = new SourceReferenceBuilder(AzureBlobHelper.makeUrl(bucket, key))
-                .chrSubset(subset).build();
+                .build();
     }
 
     @Override
@@ -176,7 +176,7 @@ public class AzureBlobSource implements StreamSource {
             long lastModified = props.getLastModified().toEpochSecond();
             var tag = props.getETag();
 
-            return new StreamSourceMetadata(this, getName(), lastModified, length, tag, false);
+            return new StreamSourceMetadata(this, getName(), lastModified, length, tag);
         } catch (Throwable t) {
             handleExceptions(t);
         }

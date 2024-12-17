@@ -182,7 +182,7 @@ public class HTTPSource implements StreamSource {
                         modified = null;
                     }
                     long contentLength = getContentLength(urlc);
-                    sourceMetadata = new StreamSourceMetadata(this, url.toString(), modified, contentLength, null, false);
+                    sourceMetadata = new StreamSourceMetadata(this, url.toString(), modified, contentLength, null);
                 } else if (responseCode == HttpURLConnection.HTTP_NOT_FOUND) {
                     // If the status is "Not Found" then exists is set to false and a file not found exception is thrown
                     exists = false;

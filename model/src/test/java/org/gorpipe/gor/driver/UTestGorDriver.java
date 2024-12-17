@@ -196,7 +196,7 @@ public class UTestGorDriver {
 
     @Test
     public void testIndexedSourceReference() throws IOException {
-        DataSource source = gorDriver.getDataSource(new IndexableSourceReference(DataUtil.toFile("../tests/data/gor/genes", DataType.GOR), "foo", "bar", null, null, null, null));
+        DataSource source = gorDriver.getDataSource(new IndexableSourceReference(DataUtil.toFile("../tests/data/gor/genes", DataType.GOR), "foo", "bar", null, null, null));
 
         Assert.assertTrue("source should exists", source.exists());
         Assert.assertTrue(source.getSourceReference() instanceof IndexableSourceReference);
@@ -219,7 +219,7 @@ public class UTestGorDriver {
         FileUtils.writeStringToFile(linkFile, dataFile.getAbsolutePath(), Charset.defaultCharset());
 
         // Create indexable source references
-        DataSource source = gorDriver.getDataSource(new IndexableSourceReference(linkFile.getAbsolutePath(), "foo", "bar", null, null, null, null));
+        DataSource source = gorDriver.getDataSource(new IndexableSourceReference(linkFile.getAbsolutePath(), "foo", "bar", null, null, null));
         Assert.assertTrue("source should exists", source.exists());
 
         // test that the data source source reference is of the correct type and includes the index and reference file
@@ -235,7 +235,7 @@ public class UTestGorDriver {
         FileUtils.writeStringToFile(linkFile, dataFile.getAbsolutePath(), Charset.defaultCharset());
 
         // Create indexable source references
-        DataSource source = gorDriver.getDataSource(new IndexableSourceReference(linkFile.getAbsolutePath().replace(DataType.LINK.suffix, ""), "foo", "bar", null, null, null, null));
+        DataSource source = gorDriver.getDataSource(new IndexableSourceReference(linkFile.getAbsolutePath().replace(DataType.LINK.suffix, ""), "foo", "bar", null, null, null));
         Assert.assertTrue("source should exists", source.exists());
 
         // test that the data source source reference is of the correct type and includes the index and reference file

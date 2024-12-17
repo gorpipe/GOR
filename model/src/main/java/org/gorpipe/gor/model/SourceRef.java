@@ -363,26 +363,25 @@ public class SourceRef {
      * Create a new iterator for this FileRef object
      *
      * @param lookup    ChromosomeLookup map
-     * @param chrSubset Name of chromosome, used if local caching can choose to cache only a subset of file
      * @return The GenomicIterator from this source
      * @throws IOException
      */
-    public GenomicIterator iterate(ChromoLookup lookup, String chrSubset, GorSession session) throws IOException {
+    public GenomicIterator iterate(ChromoLookup lookup, GorSession session) throws IOException {
         // All files, except specific endings are assumed to be tab delimited text files in genomic order
         // With first two fields as chromosome and position
         if (isStandardIn()) {
             return new StdInGenomicIterator(lookup);
         }
 
-        return iterateFile(file, indexFile, referenceFile, securityContext, commonRoot, lookup, chrSubset, session);
+        return iterateFile(file, indexFile, referenceFile, securityContext, commonRoot, lookup, session);
     }
 
     private static GenomicIterator iterateFile(String file, String index, String reference, String securityContext,
-                                               String commonRoot, ChromoLookup lookup, String chrSubset, GorSession session) throws IOException {
+                                               String commonRoot, ChromoLookup lookup, GorSession session) throws IOException {
         try {
             var isMem = file.startsWith("mem:");
             if (!isMem && GorDriverFactory.fromConfig().config().enabled()) {
-                SourceReference sourceReference = new IndexableSourceReference(file, index, reference, securityContext, commonRoot, lookup, chrSubset);
+                SourceReference sourceReference = new IndexableSourceReference(file, index, reference, securityContext, commonRoot, lookup);
                 GenomicIterator newIt;
                 if (session != null) {
                     // Use the datasource if possible.

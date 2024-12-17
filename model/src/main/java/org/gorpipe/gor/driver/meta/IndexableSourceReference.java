@@ -31,8 +31,8 @@ public class IndexableSourceReference extends SourceReference {
     private final String indexSource;
     private final String referenceSource;
 
-    public IndexableSourceReference(String url, String indexSource, String referenceSource, String securityContext, String commonRoot, ChromoLookup lookup, String chrSubset) {
-        super(url, securityContext, commonRoot, lookup, chrSubset, null, false);
+    public IndexableSourceReference(String url, String indexSource, String referenceSource, String securityContext, String commonRoot, ChromoLookup lookup) {
+        super(url, securityContext, commonRoot, lookup, null, false);
 
         this.indexSource = indexSource;
         this.referenceSource = referenceSource;
