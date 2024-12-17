@@ -57,7 +57,7 @@ trait GorPipeFirstOrderCommands {
         " -version             Show the build version and git commit SHA hash.\n\n" +
         "Example: \n" +
         "  gorpipe \"gor genes.gor | group 1000 -count\"\n\n" +
-        "For further information see the GOR User Manual: http://cdn.nextcode.com/gor\n" +
+        "For further information see the GOR User Manual: https://docs.gorpipe.org\n" +
         "For command help type gorpipe help <command>, e.g. gorpipe help join, gorpipe help formulas, or gorpipe help all.\n"
     }
 
